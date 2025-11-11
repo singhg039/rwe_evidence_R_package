@@ -11,13 +11,13 @@ Provides end-to-end workflows for generating Real-World Evidence (RWE) from Real
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/yourusername/rwevidence}
-  \item Report bugs at \url{https://github.com/yourusername/rwevidence/issues}
+  \item \url{https://github.com/singhg039/rwe_evidence_R_package}
+  \item Report bugs at \url{https://github.com/singhg039/rwe_evidence_R_package/issues}
 }
 
 }
 \author{
-\strong{Maintainer}: Package Developer \email{developer@example.com}
+\strong{Maintainer}: Gagandeep Singh \email{gagans01399@gmail.com}
 
 }
 \keyword{internal}

@@ -1,4 +1,4 @@
-url: https://yourusername.github.io/rwevidence
+url: https://singhg039.github.io/rwe_evidence_R_package
 
 template:
   bootstrap: 5
@@ -42,7 +42,7 @@ navbar:
       href: news/index.html
     github:
       icon: fab fa-github fa-lg
-      href: https://github.com/yourusername/rwevidence
+      href: https://github.com/singhg039/rwe_evidence_R_package
 
 reference:
   - title: "Data Ingestion"

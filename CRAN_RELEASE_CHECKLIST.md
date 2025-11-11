@@ -4,8 +4,8 @@
 
 ### Package Integrity
 - [x] R CMD check passes with 0 errors
-- [x] 3 warnings (documentation - acceptable)
-- [x] 2 notes (explained in cran-comments.md)
+- [x] 0 warnings
+- [x] 1 note (explained in cran-comments.md)
 - [x] All mandatory dependencies available on CRAN
 - [x] 651 passing tests
 - [x] Test coverage >80%
@@ -37,9 +37,9 @@
 ## Before Submission
 
 ### Final Steps
-- [ ] Update version to 0.1.0 (if not already)
-- [ ] Update URLs in DESCRIPTION (replace "yourusername" with actual GitHub username)
-- [ ] Update maintainer email if needed
+- [x] Update version to 0.1.0 (if not already)
+- [x] Update URLs in DESCRIPTION (point to https://github.com/singhg039/rwe_evidence_R_package)
+- [x] Update maintainer email if needed
 - [ ] Review cran-comments.md for accuracy
 - [ ] Build source tarball: `R CMD build rwevidence`
 - [ ] Final R CMD check on tarball
@@ -65,7 +65,7 @@
 Some "Suggests" packages (FNN, xgboost, arrow, etc.) are not installed in the check environment but this is expected and acceptable. The package gracefully handles missing optional dependencies.
 
 ### Documentation Warnings
-3 documentation warnings related to formatting. These can be addressed in a future release without affecting package functionality.
+No outstanding documentation warnings. All exported topics now build cleanly.
 
 ### Non-Standard Files
 The _pkgdown.yml and docs/ directory are standard for R packages with pkgdown websites and should not cause CRAN rejection.
@@ -88,6 +88,6 @@ All core functionality works without optional dependencies. Optional packages en
 
 ## Contact
 
-Maintainer: [Update with actual name/email from DESCRIPTION]
-GitHub: https://github.com/yourusername/rwevidence
-Issues: https://github.com/yourusername/rwevidence/issues
+Maintainer: Gagandeep Singh <gagans01399@gmail.com>
+GitHub: https://github.com/singhg039/rwe_evidence_R_package
+Issues: https://github.com/singhg039/rwe_evidence_R_package/issues

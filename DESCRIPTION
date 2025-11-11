@@ -3,7 +3,9 @@ Type: Package
 Title: Real-World Evidence Generation for Pharmaceutical Research
 Version: 0.1.0
 Authors@R:
-    person("Package", "Developer", , "developer@example.com", role = c("aut", "cre"))
+    person("Gagandeep", "Singh", email = "gagans01399@gmail.com", role = c("aut", "cre"))
+Author: Gagandeep Singh [aut, cre]
+Maintainer: Gagandeep Singh <gagans01399@gmail.com>
 Description: Provides end-to-end workflows for generating Real-World Evidence
     (RWE) from Real-World Data (RWD) sources. Includes data ingestion,
     quality assessment, harmonization, AI-powered analytics, external control

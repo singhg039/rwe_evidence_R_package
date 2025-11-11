@@ -1,25 +1,16 @@
 ## R CMD check results
 
-0 errors | 3 warnings | 2 notes
-
-### Warnings
-
-The 3 warnings are related to documentation formatting and can be addressed in future releases. They do not affect package functionality.
+0 errors | 0 warnings | 1 note
 
 ### Notes
 
-* **NOTE 1**: Packages suggested but not available for checking
-  - These are optional "Suggests" packages that provide enhanced functionality but are not required for core package operation
+* Packages suggested but not available for checking
+  - These optional "Suggests" packages (covr, arrow, gbm, validate, pointblank, WeightIt, randomForest, admiral, rtables, tern, mlr3, RPostgres, odbc) are not required for core package operation
   - The package includes appropriate checks to gracefully handle missing optional dependencies
-
-* **NOTE 2**: Non-standard files/directories found at top level: '_pkgdown.yml' 'docs'
-  - _pkgdown.yml is the standard configuration file for pkgdown package website generation
-  - docs/ contains the generated package website
-  - Both are standard practice in modern R package development
 
 ## Test environments
 
-* local: macOS 14.x, R 4.4.1
+* local: macOS 14.x (APFS volume), R 4.4.1
 * Platform: aarch64-apple-darwin20
 
 ## Test results

@@ -17,7 +17,7 @@ The **rwevidence** R package is **production-ready** and prepared for CRAN submi
 | **Test Coverage** | >80% |
 | **Documentation Files** | 352 .Rd files |
 | **Vignettes** | 4 articles |
-| **R CMD Check** | 0 errors, 3 warnings, 2 notes |
+| **R CMD Check** | 0 errors, 0 warnings, 1 note |
 
 ## Module Implementation Status
 
@@ -178,29 +178,27 @@ The **rwevidence** R package is **production-ready** and prepared for CRAN submi
 - [x] Tests pass reliably
 
 ### ⚠️ Minor Issues (Acceptable)
-- 3 documentation warnings (formatting)
-- 2 notes (explained in cran-comments.md)
-- Optional packages not universally available
+- 1 NOTE: optional Suggests packages (covr, arrow, gbm, etc.) not installed in check environment
+- Optional packages not universally available (handled gracefully)
 
 ### 📋 Before Submission
-- [ ] Update GitHub URLs in DESCRIPTION
-- [ ] Update maintainer information
+- [x] Update GitHub URLs in DESCRIPTION
+- [x] Update maintainer information
 - [ ] Build source tarball
 - [ ] Final check on tarball
 
 ## Next Steps
 
 ### Immediate (Pre-CRAN)
-1. Update placeholder URLs/emails in DESCRIPTION
-2. Build and check tarball: `R CMD build rwevidence`
-3. Test on R-devel if available
-4. Submit to CRAN
+1. Build and check tarball: `R CMD build rwevidence`
+2. Test on R-devel if available
+3. Submit to CRAN
 
 ### Short Term (Post-CRAN)
 1. Set up continuous integration (GitHub Actions)
 2. Add more example datasets
 3. Expand vignette library
-4. Address documentation warnings
+4. Automate pkgdown deployment
 
 ### Long Term
 1. Add support for additional data sources
@@ -233,10 +231,10 @@ The **rwevidence** R package is **production-ready** and prepared for CRAN submi
 - **Package**: rwevidence
 - **Version**: 0.1.0
 - **License**: MIT
-- **Repository**: https://github.com/yourusername/rwevidence
-- **Issues**: https://github.com/yourusername/rwevidence/issues
+- **Repository**: https://github.com/singhg039/rwe_evidence_R_package
+- **Issues**: https://github.com/singhg039/rwe_evidence_R_package/issues
 - **Documentation**: See README.md and vignettes
 
 ---
 
-**Package is ready for CRAN submission pending final URL/contact updates.**
+**Package is ready for CRAN submission pending tarball build/check and final verification.**

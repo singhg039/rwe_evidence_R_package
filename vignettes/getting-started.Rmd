@@ -24,7 +24,7 @@ The **rwevidence** package provides end-to-end workflows for generating Real-Wor
 
 ```{r eval=FALSE}
 # Install from GitHub
-devtools::install_github("yourusername/rwevidence")
+devtools::install_github("singhg039/rwe_evidence_R_package")
 ```
 
 ## Basic Workflow
