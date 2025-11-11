@@ -1,0 +1,178 @@
+---
+title: "Validation Diagnostics & Quality Checklist"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Validation Diagnostics & Quality Checklist}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+# Overview
+
+This vignette documents a repeatable validation routine for **rwevidence**
+workflows. It demonstrates how to:
+
+1. Verify data quality and schema alignment prior to analysis.
+2. Confirm analytic reproducibility using known-effect simulations.
+3. Validate reporting outputs (tables, figures, export bundles).
+
+The code is provided as a checklist; run the snippets against your project’s
+cohort to generate a validation record for audit purposes.
+
+# 1. Environment Capture
+
+```{r session-info}
+session_info <- rwe_capture_session_info()
+print(session_info)
+
+# Optionally export for audit trail
+saveRDS(session_info, file = "validation/session-info.rds")
+```
+
+# 2. Data Quality Verification
+
+```{r data-quality}
+quality_results <- rwe_assess_quality(
+  data = cohort_raw,
+  dimensions = c("completeness", "consistency", "validity"),
+  thresholds = list(
+    completeness = 0.90,
+    consistency = 0.95,
+    validity = 0.95
+  )
+)
+
+summary(quality_results)
+stopifnot(quality_results$overall_score >= 0.9)
+```
+
+# 3. Schema & Harmonization Checks
+
+```{r schema-check}
+harmonized <- rwe_harmonize(
+  data = cohort_raw,
+  target_schema = "omop_cdm_5.4"
+)
+
+schema_validation <- rwe_validate_schema(harmonized)
+print(schema_validation)
+stopifnot(schema_validation$passed)
+```
+
+# 4. Known-Effect Simulation Harness
+
+```{r known-effect}
+sim_cohort <- rwe_simulate_cohort(
+  n = 2000,
+  treatment_effect = log(0.75),
+  baseline_covariates = c("age", "sex", "bmi")
+)
+
+ps <- rwe_propensity_score(
+  data = sim_cohort,
+  treatment = "treated",
+  covariates = c("age", "sex", "bmi"),
+  method = "logistic"
+)
+
+iptw <- rwe_iptw(
+  data = sim_cohort,
+  ps_object = ps,
+  outcome = "outcome_12m"
+)
+
+ate <- rwe_estimate_ate(iptw, outcome = "outcome_12m")
+print(ate)
+stopifnot(abs(log(ate$estimate) - log(0.75)) < 0.1)
+```
+
+# 5. Reporting Asset Validation
+
+```{r reporting-validation}
+table_one <- rwe_table_one(
+  data = cohort_matched,
+  group_var = "treatment_group",
+  variables = c("age", "sex", "bmi", "baseline_stage")
+)
+
+effectiveness <- rwe_relative_risk(
+  data = cohort_matched,
+  outcome = "event",
+  treatment = "treatment_flag",
+  quiet = TRUE
+)
+
+safety <- rwe_analyze_safety(
+  data = safety_records,
+  events = "ae_count",
+  person_time = "person_years",
+  treatment = "treatment_flag",
+  time_var = "visit_day",
+  quiet = TRUE
+)
+
+report <- rwe_generate_regulatory_report(
+  study_title = "Validation Study",
+  cohort_data = cohort_matched,
+  treatment_var = "treatment_group",
+  baseline_vars = c("age", "sex", "bmi", "baseline_stage"),
+  effectiveness = effectiveness,
+  safety_analysis = safety,
+  safety_report = rwe_safety_report(
+    data = safety_records,
+    group_var = "treatment_group",
+    ae_var = "adverse_event",
+    severity_var = "severity",
+    serious_var = "serious",
+    n_per_group = table(safety_records$treatment_group)
+  )
+)
+
+export_regulatory_report(
+  report,
+  output_file = "validation/reg-report.html",
+  include_tables = TRUE,
+  include_figures = TRUE
+)
+stopifnot(file.exists("validation/reg-report.html"))
+```
+
+# 6. Automated Test Suite
+
+```{r automated-tests}
+withr::with_dir(project_root, {
+  test_results <- testthat::test_package("rwevidence")
+  print(test_results)
+  stopifnot(test_results$failed == 0)
+})
+```
+
+# 7. Consolidated Validation Record
+
+```{r consolidate}
+validation_log <- list(
+  session_info = session_info,
+  data_quality = quality_results$overall_score,
+  schema_check = schema_validation,
+  known_effect = ate$estimate,
+  report_path = normalizePath("validation/reg-report.html"),
+  executed_at = Sys.time()
+)
+
+saveRDS(validation_log, file = "validation/validation-log.rds")
+```
+
+## Next Steps
+
+- Add this validation script to your CI pipeline.
+- Store `validation-log.rds` alongside study deliverables.
+- Review thresholds (effect size tolerances, quality scores) with the study
+  statistician for regulatory submissions.

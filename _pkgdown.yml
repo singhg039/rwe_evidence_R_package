@@ -1,0 +1,219 @@
+url: https://yourusername.github.io/rwevidence
+
+template:
+  bootstrap: 5
+  bootswatch: flatly
+  bslib:
+    primary: "#0054AD"
+    border-radius: 0.5rem
+    btn-border-radius: 0.25rem
+
+home:
+  title: "rwevidence: Real-World Evidence Generation for Pharmaceutical Research"
+  description: >
+    End-to-end workflows for generating regulatory-grade Real-World Evidence (RWE)
+    from Real-World Data (RWD) sources. Supports FDA/EMA submissions.
+
+navbar:
+  structure:
+    left: [intro, reference, articles, tutorials, news]
+    right: [search, github]
+  components:
+    home: ~
+    intro:
+      text: Get Started
+      href: articles/getting-started.html
+    reference:
+      text: Reference
+      href: reference/index.html
+    articles:
+      text: Articles
+      menu:
+      - text: Getting Started
+        href: articles/getting-started.html
+      - text: Complete Workflow
+        href: articles/complete-workflow.html
+      - text: "Case Study: Oncology"
+        href: articles/case-study-oncology.html
+      - text: "Validation & Diagnostics"
+        href: articles/validation-diagnostics.html
+    news:
+      text: News
+      href: news/index.html
+    github:
+      icon: fab fa-github fa-lg
+      href: https://github.com/yourusername/rwevidence
+
+reference:
+  - title: "Data Ingestion"
+    desc: >
+      Functions for reading and loading Real-World Data from various sources
+    contents:
+      - rwe_read_ehr
+      - rwe_read_claims
+      - rwe_read_registry
+      - is_rwe_data
+      - is_rwe_ehr
+
+  - title: "Data Quality Assessment"
+    desc: >
+      Assess data quality across multiple dimensions following DQAF framework
+    contents:
+      - rwe_assess_quality
+      - rwe_profile_data
+      - print.rwe_quality_report
+      - summary.rwe_quality_report
+
+  - title: "Data Harmonization"
+    desc: >
+      Standardize data to common schemas and terminologies
+    contents:
+      - rwe_harmonize
+      - rwe_map_terminology
+      - rwe_standardize_dates
+      - print.rwe_harmonized
+
+  - title: "Imputation & Missing Data"
+    desc: >
+      Handle missing values using various methods including ML approaches
+    contents:
+      - rwe_impute
+      - rwe_analyze_missingness
+
+  - title: "Propensity Scores & Causal Inference"
+    desc: >
+      Estimate propensity scores and perform causal inference analyses
+    contents:
+      - rwe_propensity_score
+      - rwe_match_cohorts
+      - rwe_estimate_ate
+      - rwe_estimate_att
+      - rwe_estimate_iptw
+      - print.rwe_ps_result
+      - print.rwe_matched_cohort
+
+  - title: "Study Design"
+    desc: >
+      Create external control arms and design comparative effectiveness studies
+    contents:
+      - rwe_create_external_control
+      - rwe_assess_balance
+      - print.rwe_external_control
+
+  - title: "Survival Analysis"
+    desc: >
+      Survival analysis including Kaplan-Meier and Cox regression
+    contents:
+      - rwe_kaplan_meier
+      - rwe_cox_regression
+      - rwe_log_rank_test
+      - print.rwe_kaplan_meier
+      - print.rwe_cox_result
+      - plot.rwe_kaplan_meier
+
+  - title: "Effectiveness Analysis"
+    desc: >
+      Treatment effectiveness measures including RR, OR, NNT, and subgroup analysis
+    contents:
+      - rwe_relative_risk
+      - rwe_odds_ratio
+      - rwe_nnt
+      - rwe_nnh
+      - rwe_subgroup_analysis
+      - rwe_sensitivity_analysis
+      - print.rwe_relative_risk
+      - print.rwe_odds_ratio
+      - print.rwe_nnt
+      - print.rwe_subgroup_analysis
+      - plot.rwe_subgroup_analysis
+
+  - title: "Safety Surveillance"
+    desc: >
+      Safety monitoring and adverse event analysis
+    contents:
+      - rwe_analyze_safety
+      - rwe_safety_report
+      - rwe_signal_detection
+      - print.rwe_safety_report
+      - summary.rwe_safety_report
+
+  - title: "Regulatory Reporting"
+    desc: >
+      Generate regulatory-compliant reports, tables, and figures
+    contents:
+      - rwe_table_one
+      - rwe_consort_diagram
+      - rwe_regulatory_report
+      - export_table_one
+      - export_regulatory_report
+      - print.rwe_table_one
+      - summary.rwe_table_one
+      - print.rwe_consort
+      - summary.rwe_consort
+      - print.rwe_regulatory_report
+
+  - title: "Results Tables & Figures"
+    desc: >
+      Create publication-quality tables and figures
+    contents:
+      - rwe_results_table
+      - rwe_figure_forest
+      - rwe_figure_survival
+      - rwe_figure_consort
+
+  - title: "Logging & Audit"
+    desc: >
+      Logging system and audit trail management for regulatory compliance
+    contents:
+      - setup_logger
+      - log_info
+      - log_warning
+      - log_error
+      - create_audit_trail
+      - export_audit_trail
+      - get_log_history
+
+  - title: "Utilities"
+    desc: >
+      Helper functions and validation utilities
+    contents:
+      - validate_inputs
+      - check_data_structure
+      - standardize_variable_names
+      - safe_join
+      - extract_data_info
+
+  - title: "S3 Classes"
+    desc: >
+      S3 class constructors and methods
+    contents:
+      - new_rwe_data
+      - new_rwe_ehr
+      - new_rwe_quality_report
+      - new_rwe_harmonized
+      - new_rwe_matched_cohort
+      - new_rwe_analysis
+
+articles:
+  - title: "Getting Started"
+    navbar: ~
+    contents:
+    - getting-started
+  - title: "Workflows"
+    desc: "Complete end-to-end workflows"
+    contents:
+    - complete-workflow
+    - case-study-oncology
+  - title: "Advanced Topics"
+    contents:
+    - validation-diagnostics
+
+authors:
+  footer:
+    roles: [aut, cre]
+    text: "Developed by"
+
+footer:
+  structure:
+    left: developed_by
+    right: built_with

@@ -1,0 +1,220 @@
+---
+title: "Getting Started with rwevidence"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with rwevidence}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+## Introduction
+
+The **rwevidence** package provides end-to-end workflows for generating Real-World Evidence (RWE) from Real-World Data (RWD) sources. This vignette demonstrates the basic usage of the package for pharmaceutical research and regulatory submissions.
+
+## Installation
+
+```{r eval=FALSE}
+# Install from GitHub
+devtools::install_github("yourusername/rwevidence")
+```
+
+## Basic Workflow
+
+### 1. Load the Package
+
+```{r eval=FALSE}
+library(rwevidence)
+```
+
+### 2. Read EHR Data
+
+The package supports multiple data sources and formats:
+
+```{r eval=FALSE}
+# Read from CSV file
+ehr_data <- rwe_read_ehr(
+  source = "patient_data.csv",
+  format = "omop_cdm",
+  version = "5.4",
+  validate = TRUE
+)
+
+print(ehr_data)
+```
+
+### 3. Assess Data Quality
+
+```{r eval=FALSE}
+quality <- rwe_assess_quality(
+  data = ehr_data,
+  dimensions = c("completeness", "validity", "consistency")
+)
+
+print(quality)
+```
+
+### 4. Harmonize and Impute
+
+```{r eval=FALSE}
+# Harmonize to OMOP CDM
+harmonized <- rwe_harmonize(
+  data = ehr_data,
+  target_schema = "omop_cdm_5.4"
+)
+
+# Impute missing values
+imputed <- rwe_impute(
+  data = harmonized,
+  method = "random_forest",
+  seed = 123
+)
+
+print(imputed)
+```
+
+## Quick Analysis Example
+
+Once you have clean data, you can perform various analyses:
+
+### Propensity Score Matching
+
+```{r eval=FALSE}
+# Create matched cohorts
+matched <- rwe_match_cohorts(
+  data = imputed,
+  treatment_var = "exposed",
+  outcome_var = "event",
+  covariates = c("age", "sex", "comorbidities"),
+  method = "nearest"
+)
+
+print(matched)
+```
+
+### Treatment Effectiveness
+
+```{r eval=FALSE}
+# Calculate relative risk
+rr <- rwe_relative_risk(
+  data = matched,
+  outcome = "event",
+  treatment = "exposed"
+)
+
+print(rr)
+
+# Calculate number needed to treat
+nnt <- rwe_nnt(
+  data = matched,
+  outcome = "event",
+  treatment = "exposed",
+  beneficial = FALSE  # FALSE for adverse events
+)
+
+print(nnt)
+```
+
+### Survival Analysis
+
+```{r eval=FALSE}
+# Kaplan-Meier survival curves
+km <- rwe_kaplan_meier(
+  data = matched,
+  time_var = "time_to_event",
+  event_var = "event",
+  group_var = "exposed"
+)
+
+# Plot survival curves
+plot(km)
+
+# Cox proportional hazards
+cox <- rwe_cox_regression(
+  data = matched,
+  time_var = "time_to_event",
+  event_var = "event",
+  treatment_var = "exposed",
+  covariates = c("age", "sex")
+)
+
+print(cox)
+```
+
+### Regulatory Reporting
+
+```{r eval=FALSE}
+# Create Table 1 (baseline characteristics)
+table1 <- rwe_table_one(
+  data = matched,
+  group_var = "exposed",
+  variables = c("age", "sex", "bmi", "comorbidities"),
+  test = TRUE,
+  smd = TRUE
+)
+
+print(table1)
+
+# Export to HTML
+export_table_one(table1, "table1.html")
+
+# Create CONSORT diagram
+consort <- rwe_consort_diagram(
+  screened = 1000,
+  enrolled = 800,
+  allocated = list("Treatment" = 400, "Control" = 400),
+  analyzed = list("Treatment" = 380, "Control" = 390)
+)
+
+print(consort)
+```
+
+## Complete Workflow Summary
+
+A typical rwevidence workflow includes:
+
+1. **Data Ingestion**: `rwe_read_ehr()` - Load data from various sources
+2. **Quality Assessment**: `rwe_assess_quality()` - Evaluate data quality
+3. **Harmonization**: `rwe_harmonize()` - Standardize to common schema
+4. **Imputation**: `rwe_impute()` - Handle missing values
+5. **Study Design**: `rwe_match_cohorts()` - Create balanced cohorts
+6. **Analysis**:
+   - `rwe_relative_risk()`, `rwe_odds_ratio()` - Effect measures
+   - `rwe_kaplan_meier()`, `rwe_cox_regression()` - Survival analysis
+   - `rwe_subgroup_analysis()` - Subgroup effects
+7. **Reporting**: `rwe_table_one()`, `rwe_consort_diagram()` - Regulatory outputs
+
+## Next Steps
+
+- See `vignette("complete-workflow")` for a full end-to-end example
+- See `vignette("case-study-oncology")` for an oncology use case
+- See `vignette("validation-diagnostics")` for quality and validation checks
+
+## Getting Help
+
+```{r eval=FALSE}
+# Function documentation
+?rwe_read_ehr
+?rwe_assess_quality
+?rwe_match_cohorts
+?rwe_relative_risk
+?rwe_kaplan_meier
+?rwe_table_one
+
+# Package overview
+?rwevidence
+```
+
+## References
+
+- FDA Real-World Evidence Framework: https://www.fda.gov/science-research/science-and-research-special-topics/real-world-evidence
+- EMA Real-World Evidence Guideline: https://www.ema.europa.eu/en/documents/scientific-guideline/
+- OMOP CDM: https://ohdsi.github.io/CommonDataModel/

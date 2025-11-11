@@ -1,0 +1,7 @@
+^LICENSE\.md$
+^_pkgdown\.yml$
+^docs$
+^CRAN_RELEASE_CHECKLIST\.md$
+^PACKAGE_STATUS\.md$
+^cran-comments\.md$
+^benchmark_performance\.R$

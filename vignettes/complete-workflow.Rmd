@@ -1,0 +1,189 @@
+---
+title: "Complete Workflow: From Cohort to Regulatory Report"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Complete Workflow: From Cohort to Regulatory Report}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+# Overview
+
+This vignette walks through a typical end-to-end analytic workflow using
+**rwevidence**, starting from a matched cohort and concluding with an automated,
+regulatory-ready report bundle. The focus is on illustrating the flow of
+functions and intermediate objects; the code blocks are provided for reference
+and are marked with `eval = FALSE` to keep the vignette lightweight.
+
+## Prerequisites
+
+```{r libraries, eval = FALSE}
+library(rwevidence)
+library(dplyr)
+library(ggplot2)
+```
+
+You will need a cohort dataset that contains:
+
+- Treatment assignment (`0/1` or logical) and optional labeling column
+- Baseline covariates for descriptive summaries
+- Outcome variables for effectiveness and safety assessments
+- Person-time and adverse event records (for safety monitoring)
+
+# 1. Prepare Analysis Datasets
+
+```{r prepare-data, eval = FALSE}
+# Example structure for a matched cohort
+cohort <- cohort_data %>%
+  mutate(
+    treatment_flag = as.numeric(treatment == "Drug"),
+    followup_time = pmin(time_to_event, censor_time),
+    event_indicator = as.integer(event_occurred)
+  )
+
+# Optional: assemble safety records
+safety_ae <- safety_raw %>%
+  select(subject_id, treatment_group, adverse_event, severity, serious, person_time)
+```
+
+# 2. Baseline Characteristics (Table 1)
+
+```{r table-one, eval = FALSE}
+table_one <- rwe_table_one(
+  data = cohort,
+  group_var = "treatment_group",
+  variables = c("age", "sex", "bmi", "smoker_status"),
+  test = TRUE,
+  smd = TRUE
+)
+
+print(table_one)
+baseline_table <- rwe_results_table(table_one, table_type = "demographics")
+```
+
+# 3. Effectiveness & Survival Analyses
+
+```{r effectiveness, eval = FALSE}
+rr <- rwe_relative_risk(
+  data = cohort,
+  outcome = "event_indicator",
+  treatment = "treatment_flag",
+  quiet = TRUE
+)
+
+km <- rwe_kaplan_meier(
+  data = cohort,
+  time_var = "followup_time",
+  event_var = "event_indicator",
+  group_var = "treatment_flag"
+)
+
+subgroup <- rwe_subgroup_analysis(
+  data = cohort,
+  outcome = "event_indicator",
+  treatment = "treatment_flag",
+  subgroup_vars = c("sex", "age_group"),
+  quiet = TRUE
+)
+```
+
+# 4. Safety Surveillance
+
+```{r safety, eval = FALSE}
+safety_analysis <- rwe_analyze_safety(
+  data = safety_ae %>%
+    mutate(treatment_flag = as.numeric(treatment_group == "Drug")),
+  events = "event_count",
+  person_time = "person_time",
+  treatment = "treatment_flag",
+  time_var = "visit_day",
+  quiet = TRUE
+)
+
+safety_report <- rwe_safety_report(
+  data = safety_ae,
+  group_var = "treatment_group",
+  ae_var = "adverse_event",
+  severity_var = "severity",
+  serious_var = "serious",
+  n_per_group = table(safety_ae$treatment_group),
+  top_n = 10
+)
+
+consort <- rwe_consort_diagram(
+  screened = 1200,
+  enrolled = 950,
+  excluded = list("Not eligible" = 180, "Declined" = 70),
+  allocated = list("Drug" = 475, "Control" = 475),
+  lost_to_followup = list("Drug" = 25, "Control" = 20),
+  discontinued = list(
+    "Drug" = list("Adverse events" = 15, "Withdrawal" = 8),
+    "Control" = list("Adverse events" = 9)
+  ),
+  analyzed = list("Drug" = 427, "Control" = 446)
+)
+```
+
+# 5. Reporting Tables & Figures
+
+```{r reporting-assets, eval = FALSE}
+effectiveness_table <- rwe_results_table(rr, table_type = "effectiveness")
+safety_table <- rwe_results_table(safety_analysis, table_type = "safety")
+subgroup_table <- rwe_results_table(subgroup, table_type = "subgroup")
+
+forest_plot <- rwe_figure_forest(subgroup)
+survival_plot <- rwe_figure_survival(km)
+ae_bar_plot <- rwe_figure_top_ae(safety_report)
+consort_plot <- rwe_figure_consort(consort)
+```
+
+# 6. Automated Regulatory Report
+
+```{r automated-report, eval = FALSE}
+report <- rwe_generate_regulatory_report(
+  study_title = "Phase III Example Study",
+  cohort_data = cohort,
+  treatment_var = "treatment_group",
+  baseline_vars = c("age", "sex", "bmi", "smoker_status"),
+  effectiveness = rr,
+  survival = km,
+  subgroup = subgroup,
+  safety_analysis = safety_analysis,
+  safety_report = safety_report,
+  consort = consort
+)
+
+print(report)
+```
+
+# 7. HTML Export
+
+```{r export-report, eval = FALSE}
+output_file <- file.path(tempdir(), "phase-iii-report.html")
+export_regulatory_report(
+  report,
+  output_file = output_file,
+  include_tables = TRUE,
+  include_figures = TRUE
+)
+```
+
+Open the generated HTML file in a browser to review the assembled tables, figures,
+and study metadata.
+
+# Summary
+
+This workflow demonstrates how the **rwevidence** package stitches together
+cohort-level analyses, safety monitoring, and reporting utilities into a
+regulatory-friendly deliverable. The same functions can be orchestrated within
+your existing pipelines (e.g., targets, renv projects) to maintain reproducible,
+auditable analyses.

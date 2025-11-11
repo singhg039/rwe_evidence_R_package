@@ -1,0 +1,215 @@
+---
+title: "Case Study: Oncology Real-World Evidence Workflow"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Case Study: Oncology Real-World Evidence Workflow}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+# Scenario
+
+This case study demonstrates how **rwevidence** can be used to support a
+metastatic oncology program evaluating the effectiveness and safety of a novel
+therapy using matched external controls. The goal is to mirror the analyses
+performed for the pivotal submission and derive regulatory-ready outputs.
+
+# 1. Data Sources
+
+```{r data-sources}
+raw_ehr <- rwe_read_ehr(
+  source = "data/oncology/ehr_records.parquet",
+  format = "omop_cdm",
+  version = "5.4"
+)
+
+claims <- rwe_read_claims(
+  source = "data/oncology/claims.csv",
+  id_vars = c("patient_id"),
+  date_vars = c("service_date")
+)
+```
+
+# 2. Study Cohort Assembly
+
+```{r cohort-assembly}
+cohort <- raw_ehr %>%
+  filter(primary_indication == "Metastatic Cancer") %>%
+  left_join(claims, by = "patient_id") %>%
+  mutate(
+    index_date = pmin(diagnosis_date, treatment_start),
+    follow_up_days = as.numeric(event_date - index_date),
+    event_flag = as.integer(event_date <= censor_date)
+  )
+```
+
+# 3. Quality & Harmonization
+
+```{r quality-harmonization}
+quality <- rwe_assess_quality(
+  data = cohort,
+  thresholds = list(completeness = 0.9, consistency = 0.95)
+)
+stopifnot(quality$overall_score >= 0.9)
+
+harmonized <- rwe_harmonize(
+  data = cohort,
+  target_schema = "omop_cdm_5.4"
+)
+```
+
+# 4. Propensity Matching Workflow
+
+```{r matching}
+ps <- rwe_propensity_score(
+  data = harmonized,
+  treatment = "novel_therapy",
+  covariates = c("age", "sex", "ecog", "metastatic_sites", "prior_lines"),
+  method = "logistic"
+)
+
+matched <- rwe_match(
+  ps,
+  method = "nearest",
+  ratio = 1,
+  caliper = 0.2
+)
+
+matched_cohort <- matched$data
+```
+
+# 5. Effectiveness & Safety Analyses
+
+```{r analyses}
+rr <- rwe_relative_risk(
+  data = matched_cohort,
+  outcome = "progression_event",
+  treatment = "novel_therapy",
+  quiet = TRUE
+)
+
+km <- rwe_kaplan_meier(
+  data = matched_cohort,
+  time_var = "progression_free_survival_days",
+  event_var = "progression_event",
+  group_var = "novel_therapy"
+)
+
+safety_analysis <- rwe_analyze_safety(
+  data = matched_cohort,
+  events = "ae_count",
+  person_time = "exposure_years",
+  treatment = "novel_therapy",
+  time_var = "ae_day",
+  quiet = TRUE
+)
+```
+
+# 6. Subgroup Diagnostics
+
+```{r subgroup}
+subgroup <- rwe_subgroup_analysis(
+  data = matched_cohort,
+  outcome = "progression_event",
+  treatment = "novel_therapy",
+  subgroup_vars = c("age_group", "ecog", "biomarker_status"),
+  measure = "risk_ratio",
+  quiet = TRUE
+)
+```
+
+# 7. Reporting Tables & Figures
+
+```{r reporting}
+baseline_table <- rwe_table_one(
+  data = matched_cohort,
+  group_var = "novel_therapy",
+  variables = c("age", "sex", "ecog", "metastatic_sites", "biomarker_status")
+)
+
+forest_plot <- rwe_figure_forest(subgroup, reference_line = 1)
+survival_plot <- rwe_figure_survival(km)
+ae_plot <- rwe_figure_top_ae(
+  rwe_safety_report(
+    data = matched_cohort,
+    group_var = "treatment_label",
+    ae_var = "adverse_event_term",
+    severity_var = "ae_severity",
+    serious_var = "ae_serious",
+    n_per_group = table(matched_cohort$treatment_label)
+  )
+)
+```
+
+# 8. Automated Regulatory Report
+
+```{r automated-report}
+consort <- rwe_consort_diagram(
+  screened = 2000,
+  enrolled = 1500,
+  excluded = list(
+    "Eligibility not met" = 350,
+    "Declined participation" = 150
+  ),
+  allocated = list("Novel Therapy" = 750, "Control" = 750),
+  lost_to_followup = list("Novel Therapy" = 40, "Control" = 35),
+  analyzed = list("Novel Therapy" = 685, "Control" = 692)
+)
+
+report <- rwe_generate_regulatory_report(
+  study_title = "Metastatic Oncology Real-World Effectiveness",
+  cohort_data = matched_cohort,
+  treatment_var = "treatment_label",
+  baseline_vars = c("age", "sex", "ecog", "metastatic_sites", "biomarker_status"),
+  effectiveness = rr,
+  survival = km,
+  subgroup = subgroup,
+  safety_analysis = safety_analysis,
+  safety_report = rwe_safety_report(
+    data = matched_cohort,
+    group_var = "treatment_label",
+    ae_var = "adverse_event_term",
+    severity_var = "ae_severity",
+    serious_var = "ae_serious",
+    n_per_group = table(matched_cohort$treatment_label)
+  ),
+  consort = consort
+)
+
+export_regulatory_report(
+  report,
+  output_file = "case-study/oncology-report.html"
+)
+```
+
+# 9. Validation Snapshot
+
+```{r validation-log}
+validation_log <- list(
+  session_info = rwe_capture_session_info(),
+  matching_summary = matched$matching_summary,
+  quality_score = quality$overall_score,
+  effectiveness_rr = rr$risk_ratio,
+  survival_median = summary(km$survfit)$table[, "median"],
+  safety_rate_ratio = safety_analysis$rate_ratio$rate_ratio,
+  export_path = normalizePath("case-study/oncology-report.html", mustWork = FALSE),
+  executed_at = Sys.time()
+)
+
+saveRDS(validation_log, "case-study/validation-log.rds")
+```
+
+# Conclusion
+
+This case study illustrates how **rwevidence** can operationalize a complete
+real-world evidence workflow for oncology, delivering baseline summaries,
+effectiveness and safety analytics, reproducible diagnostics, and A-to-Z
+reporting packages ready for regulatory review.
