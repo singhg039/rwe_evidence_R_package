@@ -1,7 +1,7 @@
 # rwevidence
 
 <!-- badges: start -->
-[![R-CMD-check](https://img.shields.io/badge/R--CMD--check-passing-brightgreen.svg)](https://github.com/yourusername/rwevidence/actions)
+[![R-CMD-check](https://img.shields.io/badge/R--CMD--check-passing-brightgreen.svg)](https://github.com/singhg039/rwe_evidence_R_package/actions)
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
@@ -25,11 +25,11 @@ The package bridges the gap between Real-World Data sources and regulatory-grade
 
 ## Installation
 
-You can install the development version of rwevidence from [GitHub](https://github.com/yourusername/rwevidence) with:
+You can install the development version of rwevidence from [GitHub](https://github.com/singhg039/rwe_evidence_R_package) with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("yourusername/rwevidence")
+devtools::install_github("singhg039/rwe_evidence_R_package")
 ```
 
 ## Quick Start
@@ -182,9 +182,9 @@ This package is under active development. The current version (0.1.0) includes:
 
 ## Documentation
 
-- [Getting Started Guide](https://yourusername.github.io/rwevidence/articles/getting-started.html)
-- [CLAUDE.md](CLAUDE.md) - Development guide for Claude Code
-- [Package Website](https://yourusername.github.io/rwevidence)
+- [Getting Started Guide](https://singhg039.github.io/rwe_evidence_R_package/articles/getting-started.html)
+- [CLAUDE.md](https://github.com/singhg039/rwe_evidence_R_package/blob/main/CLAUDE.md) - Development guide for Claude Code
+- [Package Website](https://singhg039.github.io/rwe_evidence_R_package)
 
 ## Contributing
 
@@ -204,35 +204,8 @@ MIT License - see [LICENSE](LICENSE.md) for details.
 
 ## Support
 
-- 📝 [File an issue](https://github.com/yourusername/rwevidence/issues)
-- 💬 [Discussions](https://github.com/yourusername/rwevidence/discussions)
-
-## REST API Companion
-
-A Plumber API is bundled under `inst/api/plumber.R` to serve the Nuxt front end. Launch it with:
-
-```r
-library(rwevidence)
-library(plumber)
-
-pr <- plumb(system.file("api/plumber.R", package = "rwevidence"))
-pr$run(host = "0.0.0.0", port = 8000)
-```
-
-Key endpoints:
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/data/upload` | POST (multipart) | Upload dataset; stored in memory for subsequent calls |
-| `/data/summary` | GET | Returns dataset summary (`extract_data_info`) |
-| `/quality/run` | POST | Runs `rwe_assess_quality` |
-| `/matching/run` | POST | Estimates propensity scores + matching (`rwe_propensity_score`, `rwe_match`) |
-| `/survival/run` | POST | Cox regression via `rwe_cox_regression` |
-| `/effectiveness/run` | POST | Relative risk / odds ratio / NNT trio |
-| `/safety/run` | POST | Executes `rwe_analyze_safety` |
-| `/reports/<format>` | POST | Returns metadata placeholder for generated reports |
-
-Refer to `rwevidence-platform/docs/INTEGRATION.md` for payload examples.
+- 📝 [File an issue](https://github.com/singhg039/rwe_evidence_R_package/issues)
+- 💬 [Discussions](https://github.com/singhg039/rwe_evidence_R_package/discussions)
 
 ---
 
