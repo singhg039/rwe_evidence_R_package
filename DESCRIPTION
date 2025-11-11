@@ -60,6 +60,6 @@ Suggests:
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 VignetteBuilder: knitr
-URL: https://github.com/yourusername/rwevidence
-BugReports: https://github.com/yourusername/rwevidence/issues
+URL: https://github.com/singhg039/rwe_evidence_R_package
+BugReports: https://github.com/singhg039/rwe_evidence_R_package/issues
 Config/testthat/edition: 3
