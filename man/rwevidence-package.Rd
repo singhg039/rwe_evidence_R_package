@@ -6,7 +6,7 @@
 \alias{rwevidence-package}
 \title{rwevidence: Real-World Evidence Generation for Pharmaceutical Research}
 \description{
-Provides end-to-end workflows for generating Real-World Evidence (RWE) from Real-World Data (RWD) sources. Includes data ingestion, quality assessment, harmonization, AI-powered analytics, external control arm generation, and regulatory-compliant reporting following FDA and EMA guidance.
+Provides end-to-end workflows for generating Real-World Evidence ('RWE') from Real-World Data ('RWD') sources. Includes data ingestion, quality assessment, harmonization, AI-powered analytics, external control arm generation, and regulatory-compliant reporting following 'FDA' and 'EMA' guidance.
 }
 \seealso{
 Useful links:

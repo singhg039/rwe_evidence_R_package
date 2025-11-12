@@ -5,11 +5,13 @@
 This is a resubmission fixing issues from initial automated checks.
 
 ### Changes made:
-1. Added single quotes around acronyms in DESCRIPTION ('RWE', 'RWD', 'EMA') to indicate they are intentional
-2. Removed non-existent GitHub Pages URLs and references from README.md
-3. Fixed incomplete EMA URL in vignettes/getting-started.Rmd
-4. Added data-raw/ to .Rbuildignore to exclude it from package
-5. Removed all macOS resource fork files (._*)
+1. Added single quotes around acronyms in DESCRIPTION ('RWE', 'RWD', 'FDA', 'EMA') per CRAN guidelines
+2. Removed redundant Author and Maintainer fields (auto-generated from Authors@R)
+3. Removed non-existent GitHub Pages URLs and references from README.md
+4. Fixed incomplete EMA URL in vignettes/getting-started.Rmd
+5. Added data-raw/ to .Rbuildignore to exclude it from package
+6. Removed all macOS resource fork files (._*)
+7. Added purl = FALSE to vignettes with eval = FALSE to prevent code extraction
 
 ## Test environments
 * local macOS (aarch64-apple-darwin20), R 4.4.1
