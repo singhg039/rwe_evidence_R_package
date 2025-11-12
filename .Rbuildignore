@@ -5,3 +5,7 @@
 ^PACKAGE_STATUS\.md$
 ^cran-comments\.md$
 ^benchmark_performance\.R$
+^CLAUDE\.md$
+^\.DS_Store$
+^\._
+^\.gitattributes$

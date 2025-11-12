@@ -1,0 +1,3 @@
+# Prevent macOS resource fork files
+._* export-ignore
+.DS_Store export-ignore
