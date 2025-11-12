@@ -1,45 +1,45 @@
-## R CMD check results
-
-0 errors | 0 warnings | 1 note
-
-### Notes
-
-* Packages suggested but not available for checking
-  - These optional "Suggests" packages (covr, arrow, gbm, validate, pointblank, WeightIt, randomForest, admiral, rtables, tern, mlr3, RPostgres, odbc) are not required for core package operation
-  - The package includes appropriate checks to gracefully handle missing optional dependencies
+# CRAN Submission Comments
 
 ## Test environments
+* local macOS (aarch64-apple-darwin20), R 4.4.1
+* R CMD check with --as-cran flag
 
-* local: macOS 14.x (APFS volume), R 4.4.1
-* Platform: aarch64-apple-darwin20
+## R CMD check results
 
-## Test results
+0 errors ✓ | 0 warnings ✓ | 2 notes ✓
 
-* 651 passing tests
-* 9 skipped tests (due to optional packages not installed)
-* 0 failures
+### Notes:
+
+1. **New submission**
+   - This is a new package submission to CRAN
+
+2. **Possibly invalid URLs** (404 status)
+   - GitHub Pages URLs return 404 because the site is not yet published
+   - URLs will be valid once the package website is deployed post-CRAN acceptance
+   - All GitHub repository URLs are correct and accessible
+
+3. **Missing suggested packages during check**
+   - Several Suggests packages are not available in the check environment
+   - This is expected and handled gracefully by the package
+   - All code checks for package availability before use
+   - Examples that require unavailable packages are wrapped in \dontrun{}
+
+## Vignette notes
+
+Two vignettes (case-study-oncology.Rmd and validation-diagnostics.Rmd) have eval = FALSE in their knitr options because they reference external data files not included in the package. This is intentional design to provide code examples.
 
 ## Package dependencies
 
-All mandatory dependencies (Imports) are available on CRAN:
-- dplyr (>= 1.1.0)
-- tidyr (>= 1.3.0)
-- rlang (>= 1.1.0)
-- purrr (>= 1.0.0)
-- ggplot2 (>= 3.4.0)
-- zoo (>= 1.8-12)
-
-Optional dependencies (Suggests) enhance functionality when available but are not required.
+All Imports dependencies are available on CRAN. All Suggests packages are optional and enhance functionality but are not required for core features.
 
 ## Downstream dependencies
 
-This is a new package submission with no downstream dependencies.
+None (new package)
 
-## Additional notes
+## Additional information
 
-* First submission to CRAN
-* Package provides Real-World Evidence generation tools for pharmaceutical research
-* Aligns with FDA/EMA regulatory guidance frameworks
-* Comprehensive test suite with >80% coverage
-* Full documentation with 4 vignettes
-* Package is ready for CRAN review
+This package provides tools for Real-World Evidence generation following FDA and EMA regulatory guidance. It includes 56 exported functions, 658 passing unit tests, 3 example datasets, and comprehensive documentation.
+
+## Maintainer contact
+
+Gagandeep Singh <gagans01399@gmail.com>
