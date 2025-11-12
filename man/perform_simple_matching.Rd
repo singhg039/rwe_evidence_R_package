@@ -10,7 +10,8 @@ perform_simple_matching(
   ps_var,
   ratio,
   caliper,
-  replace = FALSE
+  replace = FALSE,
+  method = "nearest"
 )
 }
 \arguments{
@@ -20,16 +21,19 @@ perform_simple_matching(
 
 \item{ps_var}{Propensity score column name}
 
-\item{ratio}{Matching ratio}
+\item{ratio}{Matching ratio (controls per treated)}
 
-\item{caliper}{Caliper width}
+\item{caliper}{Caliper width for acceptable match distance}
 
 \item{replace}{Whether to match with replacement}
+
+\item{method}{Matching method: "nearest", "optimal", or "caliper"}
 }
 \value{
-Matched data frame
+Matched data frame with matched and match_weight columns
 }
 \description{
-Simple nearest neighbor matching implementation
+Propensity score matching using nearest neighbor, optimal, or caliper methods.
+Uses MatchIt package if available, otherwise falls back to manual nearest neighbor.
 }
 \keyword{internal}

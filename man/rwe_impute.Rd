@@ -32,9 +32,9 @@ rwe_impute(
 
 \item{k}{Number of neighbors for kNN imputation}
 
-\item{xgb_params}{Named list of XGBoost parameters}
+\item{xgb_params}{Named list of XGBoost parameters (see xgboost::xgb.train)}
 
-\item{xgb_nrounds}{Number of boosting rounds for XGBoost imputation}
+\item{xgb_nrounds}{Number of boosting rounds for XGBoost-based imputation}
 }
 \value{
 rwe_imputation object with imputed data and diagnostics

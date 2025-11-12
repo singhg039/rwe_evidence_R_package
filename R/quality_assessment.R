@@ -316,12 +316,63 @@ assess_consistency <- function(data, threshold = 0.9) {
   })]
 
   if (length(date_cols) >= 2) {
-    # Check that start dates <= end dates (if column names suggest this)
+    # Check date consistency: start dates <= end dates
     date_inconsistencies <- 0
-    # Simplified check - in real implementation would be more sophisticated
+    n_date_pairs_checked <- 0
+
+    # Common date pair patterns
+    date_pairs <- list(
+      c("start", "end"),
+      c("begin", "end"),
+      c("admission", "discharge"),
+      c("enrollment", "completion"),
+      c("baseline", "followup"),
+      c("treatment_start", "treatment_end")
+    )
+
+    # Check for date pairs in column names
+    for (pair in date_pairs) {
+      start_cols <- grep(pair[1], date_cols, ignore.case = TRUE, value = TRUE)
+      end_cols <- grep(pair[2], date_cols, ignore.case = TRUE, value = TRUE)
+
+      for (start_col in start_cols) {
+        for (end_col in end_cols) {
+          # Check that start <= end
+          valid_rows <- !is.na(data[[start_col]]) & !is.na(data[[end_col]])
+          if (sum(valid_rows) > 0) {
+            n_date_pairs_checked <- n_date_pairs_checked + sum(valid_rows)
+            inconsistent <- data[[start_col]][valid_rows] > data[[end_col]][valid_rows]
+            date_inconsistencies <- date_inconsistencies + sum(inconsistent, na.rm = TRUE)
+          }
+        }
+      }
+    }
+
+    # Check for future dates
+    current_date <- Sys.Date()
+    future_date_count <- 0
+    for (col in date_cols) {
+      valid_dates <- data[[col]][!is.na(data[[col]])]
+      future_date_count <- future_date_count + sum(valid_dates > current_date)
+    }
+
+    # Calculate date consistency score
+    date_score <- 1.0
+    if (n_date_pairs_checked > 0) {
+      date_score <- 1 - (date_inconsistencies / n_date_pairs_checked)
+    }
+    # Penalize future dates if they're implausible
+    if (future_date_count > 0) {
+      future_proportion <- future_date_count / (nrow(data) * length(date_cols))
+      date_score <- date_score * (1 - future_proportion)
+    }
+
     consistency_checks$dates <- list(
       n_date_columns = length(date_cols),
-      score = 1.0  # Placeholder
+      n_pairs_checked = n_date_pairs_checked,
+      n_inconsistencies = date_inconsistencies,
+      n_future_dates = future_date_count,
+      score = max(0, min(1, date_score))
     )
   }
 

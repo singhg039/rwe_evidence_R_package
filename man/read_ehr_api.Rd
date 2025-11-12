@@ -4,12 +4,46 @@
 \alias{read_ehr_api}
 \title{Read EHR API}
 \usage{
-read_ehr_api(url, format, ...)
+read_ehr_api(
+  url,
+  format,
+  auth_token = NULL,
+  auth_type = c("bearer", "basic", "api_key", "none"),
+  api_key = NULL,
+  username = NULL,
+  password = NULL,
+  headers = NULL,
+  query_params = NULL,
+  page_size = 100,
+  max_pages = NULL,
+  timeout = 30,
+  ...
+)
 }
 \arguments{
 \item{url}{API endpoint URL}
 
 \item{format}{Data format}
+
+\item{auth_token}{Optional authentication token}
+
+\item{auth_type}{Authentication type: "bearer", "basic", "api_key"}
+
+\item{api_key}{API key for authentication}
+
+\item{username}{Username for basic auth}
+
+\item{password}{Password for basic auth}
+
+\item{headers}{Named list of additional HTTP headers}
+
+\item{query_params}{Named list of query parameters}
+
+\item{page_size}{Number of records per page (for pagination)}
+
+\item{max_pages}{Maximum number of pages to fetch (NULL for all)}
+
+\item{timeout}{Request timeout in seconds}
 
 \item{...}{Additional arguments}
 }
@@ -17,6 +51,7 @@ read_ehr_api(url, format, ...)
 Data frame
 }
 \description{
-Reads EHR data from API endpoint (placeholder for future implementation)
+Reads EHR data from REST API endpoint with support for common patterns
+including FHIR, SMART on FHIR, and custom JSON APIs
 }
 \keyword{internal}

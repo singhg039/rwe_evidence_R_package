@@ -732,8 +732,7 @@ rwe_match <- function(ps_object,
   data <- ps_object$data
   treatment <- ps_object$treatment
 
-  # Perform simple nearest neighbor matching
-  # In full implementation, would use MatchIt package
+  # Perform matching using specified method
   cat("Matching cohorts...\n")
 
   matched_data <- perform_simple_matching(
@@ -742,7 +741,8 @@ rwe_match <- function(ps_object,
     ps_var = "propensity_score",
     ratio = ratio,
     caliper = caliper,
-    replace = replace
+    replace = replace,
+    method = method
   )
 
   # Assess balance after matching
@@ -802,38 +802,151 @@ rwe_match <- function(ps_object,
 #' Perform Simple Matching
 #'
 #' @description
-#' Simple nearest neighbor matching implementation
+#' Propensity score matching using nearest neighbor, optimal, or caliper methods.
+#' Uses MatchIt package if available, otherwise falls back to manual nearest neighbor.
 #'
 #' @param data Data frame with propensity scores
 #' @param treatment Treatment variable name
 #' @param ps_var Propensity score column name
-#' @param ratio Matching ratio
-#' @param caliper Caliper width
+#' @param ratio Matching ratio (controls per treated)
+#' @param caliper Caliper width for acceptable match distance
 #' @param replace Whether to match with replacement
-#' @return Matched data frame
+#' @param method Matching method: "nearest", "optimal", or "caliper"
+#' @return Matched data frame with matched and match_weight columns
 #' @keywords internal
-perform_simple_matching <- function(data, treatment, ps_var, ratio, caliper, replace = FALSE) {
+perform_simple_matching <- function(data, treatment, ps_var, ratio, caliper, replace = FALSE, method = "nearest") {
 
-  log_debug("Performing simple matching", context = "perform_simple_matching")
+  log_debug(paste("Performing", method, "matching"), context = "perform_simple_matching")
+
+  # Try to use MatchIt if available for proper matching algorithms
+  if (requireNamespace("MatchIt", quietly = TRUE)) {
+    log_info("Using MatchIt package for matching", context = "perform_simple_matching")
+
+    # Prepare formula (treatment ~ propensity_score)
+    formula <- as.formula(paste(treatment, "~ propensity_score"))
+
+    # Determine MatchIt method parameter
+    matchit_method <- switch(method,
+      nearest = "nearest",
+      optimal = "optimal",
+      caliper = "nearest",  # caliper is a constraint, not a method
+      "nearest"  # default
+    )
+
+    # Set up matching parameters
+    match_args <- list(
+      formula = formula,
+      data = data,
+      method = matchit_method,
+      ratio = ratio,
+      replace = replace
+    )
+
+    # Add caliper if specified
+    if (!is.null(caliper) && caliper > 0) {
+      match_args$caliper <- caliper
+      match_args$std.caliper <- FALSE  # caliper is on PS scale (0-1)
+    }
+
+    # Perform matching
+    tryCatch({
+      m_out <- do.call(MatchIt::matchit, match_args)
+
+      # Get matched data
+      matched_data <- MatchIt::match.data(m_out)
+
+      # Ensure matched column exists
+      if (!"matched" %in% names(matched_data)) {
+        matched_data$matched <- 1
+      }
+
+      # Add matched indicator to original data
+      data$matched <- 0
+      data$matched[as.integer(rownames(matched_data))] <- 1
+      data$match_weight <- 0
+      data$match_weight[as.integer(rownames(matched_data))] <- matched_data$weights
+
+      log_info(paste("Matched", sum(data$matched), "observations"),
+               context = "perform_simple_matching")
+
+      return(data)
+
+    }, error = function(e) {
+      log_warning(paste("MatchIt failed:", e$message, "- falling back to simple matching"),
+                  context = "perform_simple_matching")
+    })
+  }
+
+  # Fallback: manual nearest neighbor matching
+  log_info("Using manual nearest neighbor matching", context = "perform_simple_matching")
 
   treatment_vals <- unique(data[[treatment]])
+  if (length(treatment_vals) != 2) {
+    stop("Treatment variable must have exactly 2 levels", call. = FALSE)
+  }
+
+  # Identify treatment and control groups
   treated_idx <- which(data[[treatment]] == treatment_vals[2])
   control_idx <- which(data[[treatment]] == treatment_vals[1])
 
-  # For simplicity, sample matched pairs
-  # In full implementation, would use proper matching algorithm
-  n_matches <- min(length(treated_idx), length(control_idx) / ratio)
-
-  if (n_matches == 0) {
-    stop("No matches possible with current data", call. = FALSE)
+  if (length(treated_idx) == 0 || length(control_idx) == 0) {
+    stop("Both treatment groups must have at least one observation", call. = FALSE)
   }
 
-  matched_treated <- sample(treated_idx, n_matches, replace = replace)
-  matched_control <- sample(control_idx, n_matches * ratio, replace = replace)
+  # Get propensity scores
+  ps_treated <- data[[ps_var]][treated_idx]
+  ps_control <- data[[ps_var]][control_idx]
+
+  # Perform matching
+  matched_treated <- c()
+  matched_control <- c()
+
+  for (i in seq_along(treated_idx)) {
+    # Calculate distances
+    distances <- abs(ps_treated[i] - ps_control)
+
+    # Apply caliper constraint
+    if (!is.null(caliper) && caliper > 0) {
+      within_caliper <- distances <= caliper
+      if (!any(within_caliper)) {
+        next  # Skip if no controls within caliper
+      }
+      distances[!within_caliper] <- Inf
+    }
+
+    # Find nearest neighbor(s)
+    n_to_match <- min(ratio, sum(is.finite(distances)))
+    if (n_to_match == 0) next
+
+    nearest_idx <- order(distances)[1:n_to_match]
+
+    # Add matched pairs
+    matched_treated <- c(matched_treated, treated_idx[i])
+    matched_control <- c(matched_control, control_idx[nearest_idx])
+
+    # Remove matched controls if matching without replacement
+    if (!replace) {
+      control_idx <- control_idx[-nearest_idx]
+      ps_control <- ps_control[-nearest_idx]
+    }
+
+    if (length(control_idx) == 0) break
+  }
 
   # Mark matched observations
   data$matched <- 0
-  data$matched[c(matched_treated, matched_control)] <- 1
+  data$match_weight <- 0
+
+  if (length(matched_treated) > 0) {
+    data$matched[c(matched_treated, matched_control)] <- 1
+    data$match_weight[c(matched_treated, matched_control)] <- 1
+
+    log_info(paste("Matched", length(matched_treated), "treated and",
+                   length(matched_control), "control observations"),
+             context = "perform_simple_matching")
+  } else {
+    log_warning("No matches found within caliper", context = "perform_simple_matching")
+  }
 
   data
 }

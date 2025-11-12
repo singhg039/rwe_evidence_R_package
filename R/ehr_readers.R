@@ -370,21 +370,237 @@ read_ehr_database <- function(connection, format, schema = NULL, ...) {
 #' Read EHR API
 #'
 #' @description
-#' Reads EHR data from API endpoint (placeholder for future implementation)
+#' Reads EHR data from REST API endpoint with support for common patterns
+#' including FHIR, SMART on FHIR, and custom JSON APIs
 #'
 #' @param url API endpoint URL
 #' @param format Data format
+#' @param auth_token Optional authentication token
+#' @param auth_type Authentication type: "bearer", "basic", "api_key"
+#' @param api_key API key for authentication
+#' @param username Username for basic auth
+#' @param password Password for basic auth
+#' @param headers Named list of additional HTTP headers
+#' @param query_params Named list of query parameters
+#' @param page_size Number of records per page (for pagination)
+#' @param max_pages Maximum number of pages to fetch (NULL for all)
+#' @param timeout Request timeout in seconds
 #' @param ... Additional arguments
 #'
 #' @return Data frame
 #' @keywords internal
-read_ehr_api <- function(url, format, ...) {
+read_ehr_api <- function(url,
+                         format,
+                         auth_token = NULL,
+                         auth_type = c("bearer", "basic", "api_key", "none"),
+                         api_key = NULL,
+                         username = NULL,
+                         password = NULL,
+                         headers = NULL,
+                         query_params = NULL,
+                         page_size = 100,
+                         max_pages = NULL,
+                         timeout = 30,
+                         ...) {
 
-  log_warning("API data loading is not yet fully implemented",
-              context = "read_ehr_api")
+  auth_type <- match.arg(auth_type)
 
-  stop("API data loading is not yet implemented. ",
-       "Please use file or database sources.", call. = FALSE)
+  # Check for httr2 package
+  if (!requireNamespace("httr2", quietly = TRUE)) {
+    log_error("httr2 package required for API access", context = "read_ehr_api")
+    stop("The httr2 package is required for API data loading.\n",
+         "Install it with: install.packages('httr2')", call. = FALSE)
+  }
+
+  if (!requireNamespace("jsonlite", quietly = TRUE)) {
+    log_error("jsonlite package required for JSON parsing", context = "read_ehr_api")
+    stop("The jsonlite package is required for API data loading.\n",
+         "Install it with: install.packages('jsonlite')", call. = FALSE)
+  }
+
+  log_info(paste("Reading data from API:", url), context = "read_ehr_api")
+
+  # Build base request
+  req <- httr2::request(url) |>
+    httr2::req_timeout(timeout)
+
+  # Add authentication
+  req <- add_api_auth(req, auth_type, auth_token, api_key, username, password)
+
+  # Add custom headers
+  if (!is.null(headers)) {
+    req <- httr2::req_headers(req, .headers = headers)
+  }
+
+  # Add query parameters
+  if (!is.null(query_params)) {
+    req <- httr2::req_url_query(req, !!!query_params)
+  }
+
+  # Handle pagination
+  all_data <- list()
+  page_num <- 1
+  has_more <- TRUE
+
+  while (has_more) {
+    log_debug(paste("Fetching page", page_num), context = "read_ehr_api")
+
+    # Add pagination parameters (common patterns)
+    page_req <- req |>
+      httr2::req_url_query(
+        limit = page_size,
+        offset = (page_num - 1) * page_size,
+        page = page_num
+      )
+
+    # Execute request
+    resp <- tryCatch({
+      httr2::req_perform(page_req)
+    }, error = function(e) {
+      log_error(paste("API request failed:", e$message), context = "read_ehr_api")
+      stop("API request failed: ", e$message, call. = FALSE)
+    })
+
+    # Check response status
+    if (httr2::resp_status(resp) != 200) {
+      log_error(paste("API returned status:", httr2::resp_status(resp)),
+                context = "read_ehr_api")
+      stop("API request failed with status: ", httr2::resp_status(resp), call. = FALSE)
+    }
+
+    # Parse JSON response
+    content <- httr2::resp_body_json(resp, simplifyVector = TRUE)
+
+    # Extract data based on format
+    page_data <- extract_api_data(content, format)
+
+    if (is.null(page_data) || nrow(page_data) == 0) {
+      log_debug("No more data to fetch", context = "read_ehr_api")
+      has_more <- FALSE
+    } else {
+      all_data[[page_num]] <- page_data
+      log_info(paste("Fetched", nrow(page_data), "records from page", page_num),
+               context = "read_ehr_api")
+
+      # Check if we should continue
+      if (!is.null(max_pages) && page_num >= max_pages) {
+        log_info("Reached maximum page limit", context = "read_ehr_api")
+        has_more <- FALSE
+      } else if (nrow(page_data) < page_size) {
+        log_debug("Received fewer records than page size, assuming last page",
+                  context = "read_ehr_api")
+        has_more <- FALSE
+      } else {
+        page_num <- page_num + 1
+      }
+    }
+  }
+
+  # Combine all pages
+  if (length(all_data) == 0) {
+    log_warning("No data retrieved from API", context = "read_ehr_api")
+    return(data.frame())
+  }
+
+  combined_data <- do.call(rbind, all_data)
+  log_info(paste("Total records retrieved:", nrow(combined_data)),
+           context = "read_ehr_api")
+
+  as.data.frame(combined_data)
+}
+
+
+#' Add API Authentication
+#'
+#' @description
+#' Adds authentication to httr2 request
+#'
+#' @param req httr2 request object
+#' @param auth_type Authentication type
+#' @param auth_token Bearer token
+#' @param api_key API key
+#' @param username Username for basic auth
+#' @param password Password for basic auth
+#'
+#' @return Modified request object
+#' @keywords internal
+add_api_auth <- function(req, auth_type, auth_token, api_key, username, password) {
+
+  switch(auth_type,
+    bearer = {
+      if (!is.null(auth_token)) {
+        req <- httr2::req_auth_bearer_token(req, auth_token)
+      }
+    },
+    basic = {
+      if (!is.null(username) && !is.null(password)) {
+        req <- httr2::req_auth_basic(req, username, password)
+      }
+    },
+    api_key = {
+      if (!is.null(api_key)) {
+        req <- httr2::req_headers(req, "X-API-Key" = api_key)
+      }
+    },
+    none = {
+      # No authentication
+    }
+  )
+
+  req
+}
+
+
+#' Extract Data from API Response
+#'
+#' @description
+#' Extracts data from JSON API response based on format
+#'
+#' @param content Parsed JSON content
+#' @param format Data format
+#'
+#' @return Data frame
+#' @keywords internal
+extract_api_data <- function(content, format) {
+
+  # Handle different API response structures
+  if (format == "fhir") {
+    # FHIR bundle structure
+    if (!is.null(content$entry)) {
+      return(as.data.frame(content$entry))
+    }
+  }
+
+  # Common JSON array patterns
+  if (is.data.frame(content)) {
+    return(content)
+  }
+
+  # Check for common wrapper keys
+  common_keys <- c("data", "results", "records", "entries", "items", "resources")
+  for (key in common_keys) {
+    if (!is.null(content[[key]])) {
+      data <- content[[key]]
+      if (is.data.frame(data) || is.list(data)) {
+        return(as.data.frame(data))
+      }
+    }
+  }
+
+  # If content is a list, try to convert directly
+  if (is.list(content)) {
+    tryCatch({
+      return(as.data.frame(content))
+    }, error = function(e) {
+      log_warning(paste("Could not convert API response to data frame:", e$message),
+                  context = "extract_api_data")
+    })
+  }
+
+  # Return empty data frame if unable to extract
+  log_warning("Unable to extract data from API response",
+              context = "extract_api_data")
+  data.frame()
 }
 
 

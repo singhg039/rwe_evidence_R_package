@@ -4,9 +4,29 @@
 \alias{export_table_one_latex}
 \title{Export Table One to LaTeX}
 \usage{
-export_table_one_latex(table_one, output_file, title)
+export_table_one_latex(
+  table_one,
+  output_file,
+  title,
+  label = "tab:table1",
+  booktabs = TRUE,
+  longtable = FALSE
+)
+}
+\arguments{
+\item{table_one}{rwe_table_one object}
+
+\item{output_file}{Path to output .tex file}
+
+\item{title}{Table caption}
+
+\item{label}{LaTeX label for referencing}
+
+\item{booktabs}{Use booktabs package style (recommended)}
+
+\item{longtable}{Use longtable for multi-page tables}
 }
 \description{
-Export Table One to LaTeX
+Exports Table 1 to LaTeX format suitable for journal submissions
 }
 \keyword{internal}

@@ -12,11 +12,8 @@
 #' @param m Number of imputed datasets for multiple imputation (MICE only)
 #' @param seed Random seed for reproducibility
 #' @param k Number of neighbors for kNN imputation
-#' @param xgb_params Named list of XGBoost parameters (see \\link[xgboost]{xgb.train})
+#' @param xgb_params Named list of XGBoost parameters (see xgboost::xgb.train)
 #' @param xgb_nrounds Number of boosting rounds for XGBoost-based imputation
-#' @param k Number of neighbors for kNN imputation
-#' @param xgb_params Named list of XGBoost parameters
-#' @param xgb_nrounds Number of boosting rounds for XGBoost imputation
 #'
 #' @return rwe_imputation object with imputed data and diagnostics
 #'
