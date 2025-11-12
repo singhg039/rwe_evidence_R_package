@@ -216,5 +216,5 @@ A typical rwevidence workflow includes:
 ## References
 
 - FDA Real-World Evidence Framework: https://www.fda.gov/science-research/science-and-research-special-topics/real-world-evidence
-- EMA Real-World Evidence Guideline: https://www.ema.europa.eu/en/documents/scientific-guideline/
+- EMA Real-World Evidence Guideline: https://www.ema.europa.eu/
 - OMOP CDM: https://ohdsi.github.io/CommonDataModel/

@@ -1,28 +1,29 @@
-# CRAN Submission Comments
+# CRAN Resubmission Comments
+
+## Resubmission
+
+This is a resubmission fixing issues from initial automated checks.
+
+### Changes made:
+1. Added single quotes around acronyms in DESCRIPTION ('RWE', 'RWD', 'EMA') to indicate they are intentional
+2. Removed non-existent GitHub Pages URLs and references from README.md
+3. Fixed incomplete EMA URL in vignettes/getting-started.Rmd
+4. Added data-raw/ to .Rbuildignore to exclude it from package
+5. Removed all macOS resource fork files (._*)
 
 ## Test environments
 * local macOS (aarch64-apple-darwin20), R 4.4.1
 * R CMD check with --as-cran flag
+* win-builder (r-devel)
 
 ## R CMD check results
 
-0 errors ✓ | 0 warnings ✓ | 2 notes ✓
+0 errors ✓ | 0 warnings ✓ | 1 note ✓
 
-### Notes:
+### Note:
 
 1. **New submission**
    - This is a new package submission to CRAN
-
-2. **Possibly invalid URLs** (404 status)
-   - GitHub Pages URLs return 404 because the site is not yet published
-   - URLs will be valid once the package website is deployed post-CRAN acceptance
-   - All GitHub repository URLs are correct and accessible
-
-3. **Missing suggested packages during check**
-   - Several Suggests packages are not available in the check environment
-   - This is expected and handled gracefully by the package
-   - All code checks for package availability before use
-   - Examples that require unavailable packages are wrapped in \dontrun{}
 
 ## Vignette notes
 

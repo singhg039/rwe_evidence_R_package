@@ -7,9 +7,9 @@ Authors@R:
 Author: Gagandeep Singh [aut, cre]
 Maintainer: Gagandeep Singh <gagans01399@gmail.com>
 Description: Provides end-to-end workflows for generating Real-World Evidence
-    (RWE) from Real-World Data (RWD) sources. Includes data ingestion,
+    ('RWE') from Real-World Data ('RWD') sources. Includes data ingestion,
     quality assessment, harmonization, AI-powered analytics, external control
-    arm generation, and regulatory-compliant reporting following FDA and EMA
+    arm generation, and regulatory-compliant reporting following FDA and 'EMA'
     guidance.
 License: MIT + file LICENSE
 Encoding: UTF-8

@@ -182,13 +182,17 @@ This package is under active development. The current version (0.1.0) includes:
 
 ## Documentation
 
-- [Getting Started Guide](https://singhg039.github.io/rwe_evidence_R_package/articles/getting-started.html)
-- [CLAUDE.md](https://github.com/singhg039/rwe_evidence_R_package/blob/main/CLAUDE.md) - Development guide for Claude Code
-- [Package Website](https://singhg039.github.io/rwe_evidence_R_package)
+See package vignettes for comprehensive guides:
+- Getting Started with rwevidence
+- Complete RWE Workflow
+- Case Study: NSCLC Oncology
+- Validation & Diagnostics
+
+Access vignettes with: `vignette(package = "rwevidence")`
 
 ## Contributing
 
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Contributions are welcome! Please [file an issue](https://github.com/singhg039/rwe_evidence_R_package/issues) to discuss proposed changes.
 
 ## Citation
 
@@ -200,12 +204,11 @@ citation("rwevidence")
 
 ## License
 
-MIT License - see [LICENSE](LICENSE.md) for details.
+MIT License - see [LICENSE](LICENSE) for details.
 
 ## Support
 
 - 📝 [File an issue](https://github.com/singhg039/rwe_evidence_R_package/issues)
-- 💬 [Discussions](https://github.com/singhg039/rwe_evidence_R_package/discussions)
 
 ---
 
