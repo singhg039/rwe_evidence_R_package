@@ -17,6 +17,13 @@ This roadmap transforms rwevidence from a standalone RWE package into an AI-nati
 
 **Dependencies:** None (foundation for all subsequent phases)
 
+**Plans:** 3 plans in 2 waves
+
+Plans:
+- [ ] 01-01-PLAN.md - Core audit infrastructure (JSONL, hash chain, session management)
+- [ ] 01-02-PLAN.md - Data lineage DAG (node management, trace queries, visualization)
+- [ ] 01-03-PLAN.md - Delegated call wrapper (capture function, export verification)
+
 **Requirements:**
 - AUDIT-01: Audit trail captures all delegated package calls (WeightIt, cobalt, MatchIt, admiral)
 - AUDIT-02: Each audit entry includes timestamp, function, package, version, parameters, duration
@@ -229,7 +236,7 @@ This roadmap transforms rwevidence from a standalone RWE package into an AI-nati
 
 | Phase | Status | Requirements | Completion |
 |-------|--------|--------------|------------|
-| Phase 1: Audit Trail Foundation | Pending | 5 requirements | 0% |
+| Phase 1: Audit Trail Foundation | Planned | 5 requirements | 0% |
 | Phase 2: Data Quality Gateway | Pending | 0 requirements (prerequisite) | 0% |
 | Phase 3: WeightIt Propensity Score Integration | Pending | 4 requirements | 0% |
 | Phase 4: cobalt Balance Assessment Integration | Pending | 2 requirements | 0% |
@@ -301,4 +308,5 @@ Avoided artificial compression - each phase delivers one coherent, verifiable ca
 
 ---
 *Last updated: 2026-01-30*
-*Next: `/gsd:plan-phase 1` to begin Phase 1 execution planning*
+*Phase 1 planned: 3 plans in 2 waves*
+*Next: `/gsd:execute-phase 1` to begin Phase 1 execution*
