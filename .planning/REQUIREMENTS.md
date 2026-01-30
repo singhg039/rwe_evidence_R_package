@@ -117,41 +117,46 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUDIT-03 | Phase 1 | Pending |
 | AUDIT-04 | Phase 1 | Pending |
 | AUDIT-05 | Phase 1 | Pending |
-| STAT-01 | Phase 2 | Pending |
-| STAT-02 | Phase 2 | Pending |
-| STAT-03 | Phase 2 | Pending |
-| STAT-04 | Phase 2 | Pending |
-| STAT-05 | Phase 2 | Pending |
-| STAT-06 | Phase 2 | Pending |
-| STAT-07 | Phase 2 | Pending |
-| STAT-08 | Phase 2 | Pending |
-| STAT-09 | Phase 2 | Pending |
-| COMPAT-01 | Phase 2 | Pending |
-| COMPAT-02 | Phase 2 | Pending |
-| COMPAT-03 | Phase 2 | Pending |
-| API-01 | Phase 3 | Pending |
-| API-02 | Phase 3 | Pending |
-| API-03 | Phase 3 | Pending |
-| API-04 | Phase 3 | Pending |
-| API-05 | Phase 3 | Pending |
-| API-06 | Phase 3 | Pending |
-| WORK-01 | Phase 3 | Pending |
-| WORK-02 | Phase 3 | Pending |
-| WORK-03 | Phase 3 | Pending |
-| WORK-04 | Phase 3 | Pending |
-| WORK-05 | Phase 3 | Pending |
-| WORK-06 | Phase 3 | Pending |
-| REG-01 | Phase 4 | Pending |
-| REG-02 | Phase 4 | Pending |
-| REG-03 | Phase 4 | Pending |
-| REG-04 | Phase 4 | Pending |
-| REG-05 | Phase 4 | Pending |
+| STAT-01 | Phase 3 | Pending |
+| STAT-02 | Phase 3 | Pending |
+| STAT-07 | Phase 3 | Pending |
+| STAT-08 | Phase 3 | Pending |
+| STAT-03 | Phase 4 | Pending |
+| STAT-04 | Phase 4 | Pending |
+| STAT-05 | Phase 5 | Pending |
+| STAT-06 | Phase 5 | Pending |
+| STAT-09 | Phase 5 | Pending |
+| COMPAT-01 | Phase 6 | Pending |
+| COMPAT-02 | Phase 6 | Pending |
+| COMPAT-03 | Phase 6 | Pending |
+| WORK-03 | Phase 7 | Pending |
+| WORK-04 | Phase 7 | Pending |
+| API-01 | Phase 8 | Pending |
+| API-02 | Phase 8 | Pending |
+| API-03 | Phase 8 | Pending |
+| API-04 | Phase 9 | Pending |
+| API-05 | Phase 9 | Pending |
+| API-06 | Phase 9 | Pending |
+| WORK-01 | Phase 10 | Pending |
+| WORK-02 | Phase 10 | Pending |
+| WORK-05 | Phase 10 | Pending |
+| WORK-06 | Phase 10 | Pending |
+| REG-01 | Phase 11 | Pending |
+| REG-02 | Phase 11 | Pending |
+| REG-03 | Phase 11 | Pending |
+| REG-04 | Phase 11 | Pending |
+| REG-05 | Phase 11 | Pending |
 
 **Coverage:**
-- v1 requirements: 33 total
-- Mapped to phases: 33
+- v1 requirements: 34 total
+- Mapped to phases: 34
 - Unmapped: 0 ✓
+
+**Notes:**
+- Phase 2 (Data Quality Gateway) and Phase 12 (Production Readiness) have no explicit requirements mapped but serve as prerequisites and infrastructure respectively
+- Phase 2 addresses data quality validation needed before STAT-* requirements can execute safely
+- Phase 12 addresses production infrastructure (auth, monitoring, deployment) deferred from v2 PROD-* requirements
 
 ---
 *Requirements defined: 2026-01-30*
-*Last updated: 2026-01-30 after initial definition*
+*Last updated: 2026-01-30 after roadmap creation*
